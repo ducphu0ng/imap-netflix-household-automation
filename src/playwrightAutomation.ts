@@ -2,9 +2,11 @@ import { chromium } from '@playwright/test';
 import Errorlogger from './Errorlogger';
 
 export default async function playwrightAutomation(url: string) {
-  const browser = await chromium.launch();
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--disable-gl-drawing-for-tests',]
+  });
+  const page = await browser.newPage();
 
   try {
     await page.goto(url);
