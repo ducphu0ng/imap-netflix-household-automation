@@ -1,6 +1,7 @@
 import Imap from 'imap';
 import Errorlogger from './Errorlogger';
 import playwrightAutomation from './playwrightAutomation';
+import { writeFile } from 'fs/promises';
 
 const imap = new Imap({
   user: process.env.IMAP_USER ?? '',
@@ -32,7 +33,10 @@ async function handleEmails() {
     }
 
     // https://github.com/mscdex/node-imap#:~:text=currently%20open%20mailbox.-,Valid%20options%20properties%20are%3A,-*%20**markSeen**%20%2D%20_boolean_%20%2D%20Mark
-    const fetchingData = imap.fetch(results, { bodies: 'TEXT', markSeen: true });
+    const fetchingData = imap.fetch(results, { 
+      bodies: 'TEXT', 
+      markSeen: true,
+    });
     fetchingData.on('message', (msg) => {
       let body = '';
       msg.on('body', (stream) => {
@@ -41,11 +45,14 @@ async function handleEmails() {
         });
 
         stream.on('end', async () => {
+          console.time('replace Duration');
+
           // we're removing all new line before (quoted-printable)
           const quotedPrintable = body.replace(/=(\r?\n|$)/g, '').replace(/=([a-f0-9]{2})/ig, (m, code) => String.fromCharCode(parseInt(code, 16)));
           // Search specific link, open and click
-          const regex = /"(https:\/\/www\.netflix\.com\/account\/update-primary-location[^"]*)"/;
+          const regex = /\[(https:\/\/www\.netflix\.com\/account\/update-primary-location[^\]]*)\]/;
           const match = quotedPrintable.match(regex);
+          console.timeEnd("replace Duration");
 
           if (match && match[1]) {
             try {

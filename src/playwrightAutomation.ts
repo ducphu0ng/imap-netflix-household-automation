@@ -2,9 +2,11 @@ import { chromium } from '@playwright/test';
 import Errorlogger from './Errorlogger';
 
 export default async function playwrightAutomation(url: string) {
+  console.time("playwright Duration");
+
   const browser = await chromium.launch({
     headless: true,
-    args: ['--disable-gl-drawing-for-tests',]
+    args: ['--disable-gl-drawing-for-tests'],
   });
   const page = await browser.newPage();
 
@@ -16,5 +18,7 @@ export default async function playwrightAutomation(url: string) {
   }
 
   await browser.close();
+  console.timeEnd("playwright Duration");
+
   return Promise.resolve();
 }
