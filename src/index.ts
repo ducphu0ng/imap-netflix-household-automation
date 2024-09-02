@@ -46,17 +46,16 @@ async function handleEmails() {
 
         stream.on('end', async () => {
           console.time('replace Duration');
-
           // we're removing all new line before (quoted-printable)
           const quotedPrintable = body.replace(/=(\r?\n|$)/g, '').replace(/=([a-f0-9]{2})/ig, (m, code) => String.fromCharCode(parseInt(code, 16)));
-          // Search specific link, open and click
-          const regex = /\[(https:\/\/www\.netflix\.com\/account\/update-primary-location[^\]]*)\]/;
+          // Search specific link that beginning with quoted or brackets, open and click
+          const regex = /\[(https:\/\/www\.netflix\.com\/account\/update-primary-location[^\]]*)\]|"(https:\/\/www\.netflix\.com\/account\/update-primary-location[^"]*)"/;
           const match = quotedPrintable.match(regex);
           console.timeEnd("replace Duration");
 
-          if (match && match[1]) {
+          if (match && (match[1] || match[2])) {
             try {
-              const updatePrimaryLink = new URL(match[1]);
+              const updatePrimaryLink = new URL(match[1] || match[2]);
               await playwrightAutomation(updatePrimaryLink.toString());
             } catch (e) {
               new Errorlogger(e);
