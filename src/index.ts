@@ -1,7 +1,6 @@
 import Imap from 'imap';
 import Errorlogger from './Errorlogger';
 import playwrightAutomation from './playwrightAutomation';
-import { writeFile } from 'fs/promises';
 
 const imap = new Imap({
   user: process.env.IMAP_USER ?? '',
@@ -13,7 +12,7 @@ const imap = new Imap({
   connTimeout: 3_600_000, // set to 1 Hour to reconnect, if Connection is lost
   keepalive: {
     interval: 10000, // Send NOOP commands every 10 seconds
-    idleInterval: 300000, // Re-send IDLE command every 5 minutes
+    idleInterval: 840_000, // Re-send IDLE command every 14 minutes
   },
 });
 
@@ -49,7 +48,7 @@ async function handleEmails() {
           // we're removing all new line before (quoted-printable)
           const quotedPrintable = body.replace(/=(\r?\n|$)/g, '').replace(/=([a-f0-9]{2})/ig, (m, code) => String.fromCharCode(parseInt(code, 16)));
           // Search specific link that beginning with quoted or brackets, open and click
-          const regex = /\[(https:\/\/www\.netflix\.com\/account\/update-primary-location[^\]]*)\]|"(https:\/\/www\.netflix\.com\/account\/update-primary-location[^"]*)"/;
+          const regex = /\[(https:\/\/www\.netflix\.com\/account\/update-primary-location[^\]]*)]|"(https:\/\/www\.netflix\.com\/account\/update-primary-location[^"]*)"/;
           const match = quotedPrintable.match(regex);
           console.timeEnd("replace Duration");
 
