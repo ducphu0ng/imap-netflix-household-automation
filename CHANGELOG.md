@@ -4,6 +4,10 @@
 
 - Retry confirmation for up to 30 seconds to ensure the DOM is fully hydrated before failing the process.
 
+### Internal Changes
+
+- Packages update 31.03.2025
+
 ## 1.1.1 (2024-12-01)
 
 ### Features

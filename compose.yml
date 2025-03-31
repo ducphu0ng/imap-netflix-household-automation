@@ -1,7 +1,7 @@
 services:
   imap-netflix-household-automation:
     container_name: imap-netflix-household-automation
-    image: "mcr.microsoft.com/playwright:v1.44.0-jammy"
+    image: "mcr.microsoft.com/playwright:v1.51.1-jammy"
     working_dir: /app
     ipc: host
     network_mode: host

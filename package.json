@@ -32,13 +32,13 @@
     "automation"
   ],
   "devDependencies": {
-    "@types/imap": "^0.8.40",
-    "@types/node": "^22.1.0",
-    "tsx": "^4.16.5",
-    "typescript": "^5.5.4"
+    "@types/imap": "^0.8.42",
+    "@types/node": "^22.13.14",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@playwright/test": "^1.44.0",
+    "@playwright/test": "1.51.1",
     "extensionless": "^1.9.9",
     "imap": "^0.8.19"
   }
