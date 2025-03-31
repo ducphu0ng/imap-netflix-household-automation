@@ -1,3 +1,9 @@
+## 1.2.0 (2025-03-31)
+
+### Bugfixes
+
+- Retry confirmation for up to 30 seconds to ensure the DOM is fully hydrated before failing the process.
+
 ## 1.1.1 (2024-12-01)
 
 ### Features
