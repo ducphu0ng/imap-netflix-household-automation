@@ -1,3 +1,9 @@
+## Unreleased
+
+### Features
+
+- New `IMAP_MAILBOX` variable to listen on any folder (e.g. `INBOX/vertraege/netflix`) instead of only INBOX. The folder path is resolved automatically regardless of the server's delimiter.
+
 ## 1.2.0 (2025-03-31)
 
 ### Bugfixes
