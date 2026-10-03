@@ -1,14 +1,10 @@
 services:
   imap-netflix-household-automation:
-    container_name: imap-netflix-household-automation
-    image: "mcr.microsoft.com/playwright:v1.51.1-jammy"
-    working_dir: /app
-    ipc: host
-    network_mode: host
+    build: .
+    image: imap-netflix-household-automation
+    shm_size: 256mb
     restart: unless-stopped
-    volumes:
-      - .:/app
     env_file:
       - .env
-    command: /bin/sh -c "yarn install && yarn start"
-    stdin_open: true
+    volumes:
+      - ./tmp:/app/tmp
