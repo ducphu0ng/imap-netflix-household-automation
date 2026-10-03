@@ -70,6 +70,7 @@ docker compose logs -f
 - **IMAP_HOST**: Your IMAP Host e.g. for *GMAIL* is imap.gmail.com
 - **IMAP_PORT**: Your IMAP port connection is usually on port 993
 - **IMAP_MAILBOX**: The folder to listen on e.g. *INBOX/vertraege/netflix* (default *INBOX*). Useful if a server-side rule moves the Netflix emails into a folder. The separator (`/` or `.`), letter case and a leading `INBOX` don't matter, the real folder path is resolved automatically. If the folder can't be found, all available folders are printed in the log.
+- **IMAP_TLS_REJECT_UNAUTHORIZED**: Validate the TLS certificate of the IMAP server (default *true*). Only set to *false* if your server uses a self-signed certificate.
 
 ### Email Configs
 - **TARGET_EMAIL_ADDRESS**: The email address to monitor e.g. *info@netflix.com*

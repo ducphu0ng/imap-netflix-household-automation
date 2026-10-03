@@ -1,6 +1,5 @@
 import { existsSync } from "fs";
 import { chromium, expect } from '@playwright/test';
-import Errorlogger from './Errorlogger';
 
 const STORAGE_STATE_PATH = './tmp/storageState.json';
 
@@ -34,7 +33,7 @@ export default async function playwrightAutomation(url: string) {
 
     await browserContext.storageState({ path: STORAGE_STATE_PATH });
   } catch (error) {
-    throw new Errorlogger(`No Netflix location update button found for (${url}), maybe link timeout already expired: ${error}`);
+    throw new Error(`No Netflix location update button found for (${url}), maybe link timeout already expired: ${error}`);
   } finally {
     await browser.close();
   }

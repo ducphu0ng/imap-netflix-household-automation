@@ -3,6 +3,24 @@
 ### Features
 
 - New `IMAP_MAILBOX` variable to listen on any folder (e.g. `INBOX/vertraege/netflix`) instead of only INBOX. The folder path is resolved automatically regardless of the server's delimiter.
+- New `IMAP_TLS_REJECT_UNAUTHORIZED` variable (default `true`) to only disable the TLS certificate validation for self-signed certificates.
+- Missing required environment variables are reported at startup.
+
+### Bugfixes
+
+- `IMAP_PORT` fallback to 993 never applied.
+- `&amp;` in the extracted Netflix link is decoded, so all URL parameters are passed correctly.
+- Emails are processed one at a time, so the same email can't trigger the automation twice and parallel runs don't overwrite the stored session.
+- Playwright errors are no longer logged twice.
+- On IMAP errors the process waits 60 seconds before exiting, so the Docker restart loop doesn't trigger fail2ban or rate limits on the mail server with failed logins.
+
+### Breaking Changes
+
+- The TLS certificate of the IMAP server is now validated by default. Set `IMAP_TLS_REJECT_UNAUTHORIZED="false"` if your server uses a self-signed certificate.
+
+### Internal Changes
+
+- `/tmp` (stored Netflix session) added to `.gitignore`, so the session can't be committed by accident.
 
 ## 1.2.0 (2025-03-31)
 
