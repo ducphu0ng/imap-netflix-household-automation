@@ -5,6 +5,7 @@
 - New `IMAP_MAILBOX` variable to listen on any folder (e.g. `INBOX/vertraege/netflix`) instead of only INBOX. The folder path is resolved automatically regardless of the server's delimiter.
 - New `IMAP_TLS_REJECT_UNAUTHORIZED` variable (default `true`) to only disable the TLS certificate validation for self-signed certificates.
 - Missing required environment variables are reported at startup.
+- Own Docker image (`Dockerfile`) with all dependencies and Chromium preinstalled, so the container starts instantly without `yarn install` on every start. The process runs as non-root user `node`.
 
 ### Bugfixes
 
@@ -16,7 +17,8 @@
 
 ### Breaking Changes
 
-- The TLS certificate of the IMAP server is now validated by default. Set `IMAP_TLS_REJECT_UNAUTHORIZED="false"` if your server uses a self-signed certificate.
+- The TLS certificate of the IMAP server is now validated by default. Set `IMAP_TLS_REJECT_UNAUTHORIZED='false'` if your server uses a self-signed certificate.
+- `compose.yml` builds the own image instead of mounting the project into the Playwright image. After an update the image must be rebuilt with `docker compose up -d --build`. Only `./tmp` (stored Netflix session) is mounted, `network_mode: host` was removed.
 
 ### Internal Changes
 

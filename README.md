@@ -14,17 +14,12 @@ Manually updating and accepting Netflix primary location *sucks*—**especially 
 *Start the Docker container, and you’re good to go!*
 
 ```sh
-# start with docker compose up command
-docker compose up   
+# build and start with docker compose up command
+docker compose up --build
 [+] Running 1/1
- ✔ Container imap-netflix-household-automation
-Attaching to imap-netflix-household-automation
-imap-netflix-household-automation  | yarn install v1.22.22
-imap-netflix-household-automation  | [4/4] Resolving packages...
-imap-netflix-household-automation  | Done in 0.15s.
-imap-netflix-household-automation  | yarn run v1.22.22
-imap-netflix-household-automation  | $ tsc --noEmit && tsx --import=extensionless/register src/index.ts
-imap-netflix-household-automation  | IMAP connection is ready, start listening Emails on INBOX
+ ✔ Container imap-netflix-household-automation-imap-netflix-household-automation-1
+Attaching to imap-netflix-household-automation-1
+imap-netflix-household-automation-1  | IMAP connection is ready, start listening Emails on INBOX
 ```
 ## Getting Started
 Lets speed it up!
@@ -51,11 +46,19 @@ Don't forget to enable IMAP in your email provider. For example, in Gmail, go to
    ```sh
    cp .env.dist .env
    ```
-4. starting IMAP Listener with docker compose. 💡**PRO TIP** use the -d flag to run the process in the background look up to [docker compose up reference](https://docs.docker.com/reference/cli/docker/compose/up/) 
+4. build the image and start the IMAP Listener with docker compose. 💡**PRO TIP** use the -d flag to run the process in the background look up to [docker compose up reference](https://docs.docker.com/reference/cli/docker/compose/up/) 
    ```sh
-   docker compose up -d
+   docker compose up -d --build
    ```
-That’s it! Docker will automatically install all the necessary dependencies and start the script.
+That’s it! Docker builds an image with all the necessary dependencies (incl. Chromium) and starts the script. The Netflix session is stored in the **tmp** folder, so it survives container restarts.
+
+### Update
+
+Pull the latest changes and rebuild the image:
+```sh
+git pull
+docker compose up -d --build
+```
 
 You can view the script's output — as shown in [🚀 Usage](#-usage) — by using the following command: [docker compose logs reference](https://docs.docker.com/reference/cli/docker/compose/logs/)
 ```sh
