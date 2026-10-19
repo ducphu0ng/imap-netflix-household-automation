@@ -1,0 +1,18 @@
+image:
+  repository: docker.io/dawidch/imap-netflix-household-automation
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+  pullSecretName: <pull-secret-to-image-registry>
+
+containerName: netflix-household-automation
+namespace: automation
+
+secret:
+  imapUser: <user>@gmail.com
+  imapPassword: <password-or-app-password>
+
+config:
+  imapHost: imap.gmail.com
+  imapPort: "993"
+  targetEmailAddress: info@account.netflix.com
+  targetEmailSubject: <full-email-subject-to-monitor>

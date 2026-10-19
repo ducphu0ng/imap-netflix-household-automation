@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "netflix.fullname" . }}-config
+data:
+  IMAP_HOST: {{ .Values.config.imapHost | quote }}
+  IMAP_PORT: {{ .Values.config.imapPort | quote }}
+  TARGET_EMAIL_ADDRESS: {{ .Values.config.targetEmailAddress | quote }}
+  TARGET_EMAIL_SUBJECT: {{ .Values.config.targetEmailSubject | quote }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netflix.fullname" . }}
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: {{ include "netflix.fullname" . }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "netflix.fullname" . }}
+
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecretName }}
+      containers:
+        - name: netflix
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          envFrom:
+            - secretRef:
+                name: {{ include "netflix.fullname" . }}-secret
+            - configMapRef:
+                name: {{ include "netflix.fullname" . }}-config
+
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK

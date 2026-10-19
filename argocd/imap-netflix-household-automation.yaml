@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: netflix-household-automation
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: git@github.com:ducphu0ng/imap-netflix-household-automation
+    targetRevision: main
+    path: helm-chart
+
+    helm:
+      valueFiles:
+        - ../helm-values/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: netflix-household-automation
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true

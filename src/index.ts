@@ -2,37 +2,40 @@ import Imap from 'imap';
 import Errorlogger from './Errorlogger';
 import playwrightAutomation from './playwrightAutomation';
 
-const imap = new Imap({
-  user: process.env.IMAP_USER ?? '',
-  password: process.env.IMAP_PASSWORD ?? '',
-  host: process.env.IMAP_HOST ?? '',
-  port: Number(process.env.IMAP_PORT) ?? 993,
-  tls: true,
-  tlsOptions: { rejectUnauthorized: false },
-  connTimeout: 3_600_000, // set to 1 Hour to reconnect, if Connection is lost
-  keepalive: {
-    interval: 10000, // Send NOOP commands every 10 seconds
-    idleInterval: 300000, // Re-send IDLE command every 5 minutes
-  },
-});
+function createImapClient() {
+  return new Imap({
+    user: process.env.IMAP_USER ?? '',
+    password: process.env.IMAP_PASSWORD ?? '',
+    host: process.env.IMAP_HOST ?? '',
+    port: Number(process.env.IMAP_PORT) || 993,
+    tls: true,
+    tlsOptions: { rejectUnauthorized: false },
+    keepalive: {
+      interval: 10000,
+      idleInterval: 300000,
+      forceNoop: true,
+    },
+  });
+}
 
-async function handleEmails() {
+let imap = createImapClient();
+let isConnecting = false;
+
+function handleEmails() {
   imap.search([
     'UNSEEN',
     ['HEADER', 'FROM', process.env.TARGET_EMAIL_ADDRESS],
     ['HEADER', 'SUBJECT', process.env.TARGET_EMAIL_SUBJECT],
   ], (err, results) => {
     if (err) {
-      new Errorlogger(err);
-    }
-
-    // No E-Mails found => skip
-    if (!results || !results.length) {
+      new Errorlogger(`Search Error: ${err}`);
       return;
     }
 
-    // https://github.com/mscdex/node-imap#:~:text=currently%20open%20mailbox.-,Valid%20options%20properties%20are%3A,-*%20**markSeen**%20%2D%20_boolean_%20%2D%20Mark
+    if (!results || !results.length) return;
+
     const fetchingData = imap.fetch(results, { bodies: 'TEXT', markSeen: true });
+    
     fetchingData.on('message', (msg) => {
       let body = '';
       msg.on('body', (stream) => {
@@ -41,9 +44,10 @@ async function handleEmails() {
         });
 
         stream.on('end', async () => {
-          // we're removing all new line before (quoted-printable)
-          const quotedPrintable = body.replace(/=(\r?\n|$)/g, '').replace(/=([a-f0-9]{2})/ig, (m, code) => String.fromCharCode(parseInt(code, 16)));
-          // Search specific link, open and click
+          const quotedPrintable = body
+            .replace(/=(\r?\n|$)/g, '')
+            .replace(/=([a-f0-9]{2})/ig, (m, code) => String.fromCharCode(parseInt(code, 16)));
+          
           const regex = /"(https:\/\/www\.netflix\.com\/account\/update-primary-location[^"]*)"/;
           const match = quotedPrintable.match(regex);
 
@@ -67,29 +71,55 @@ async function handleEmails() {
   });
 }
 
-(function main() {
-  // Connect to the IMAP server
-  imap.connect();
+function startImapListener() {
+  if (isConnecting) return;
+  isConnecting = true;
 
-  // start listening to Inbox
+  imap.removeAllListeners();
+
   imap.once('ready', () => {
+    isConnecting = false;
     imap.openBox('INBOX', false, (err) => {
       if (err) {
-        throw new Errorlogger(`open INBOX Error => ${err}`);
+        new Errorlogger(`open INBOX Error => ${err}`);
+        reconnect();
+        return;
       }
 
       console.log('IMAP connection is ready, start listening Emails on INBOX');
+      
+      handleEmails();
+
       imap.on('mail', () => handleEmails());
     });
   });
 
-  // Handle Imap errors
-  imap.once('error', (err: Error) => {
-    throw new Errorlogger(`make sure you E-Mail Provider enabled IMAP and you IMAP Username and Password are correct: ${err}`);
+  imap.on('error', (err: Error) => {
+    isConnecting = false;
+    new Errorlogger(`IMAP Error captured: ${err.message}`);
+    
+    reconnect();
   });
 
-  // End connection on close
   imap.once('end', () => {
+    isConnecting = false;
     console.log('IMAP connection ended');
+    reconnect();
   });
-}());
+
+  imap.connect();
+}
+
+function reconnect() {
+  try {
+    imap.destroy();
+  } catch (_) {}
+
+  console.log('Reconnecting IMAP in 10 seconds...');
+  setTimeout(() => {
+    imap = createImapClient();
+    startImapListener();
+  }, 10000);
+}
+
+startImapListener();
