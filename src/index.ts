@@ -49,7 +49,8 @@ async function handleEmails() {
 
           if (match && match[1]) {
             try {
-              const updatePrimaryLink = new URL(match[1]);
+              // the link comes from an HTML href, so decode HTML entities like &amp;
+              const updatePrimaryLink = new URL(match[1].replace(/&amp;/g, '&'));
               await playwrightAutomation(updatePrimaryLink.toString());
             } catch (e) {
               new Errorlogger(e);

@@ -1,3 +1,10 @@
+## 1.2.1 (2026-11-27)
+
+### Bugfixes
+
+- Support Netflix's new household confirm page (`update-household-confirm-cta` button); the old selector is kept as a fallback.
+- Decode `&amp;` in links extracted from the email HTML.
+
 ## 1.2.0 (2025-03-31)
 
 ### Bugfixes
