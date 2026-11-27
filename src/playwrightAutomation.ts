@@ -21,12 +21,18 @@ export default async function playwrightAutomation(url: string) {
 
   try {
     await page.goto(url, { waitUntil: "domcontentloaded" });
-    await expect(async () => {
-      const updatePrimaryButton = page.locator("button[data-uia='set-primary-location-action']");
-      await updatePrimaryButton.click({ force: true });
+    // Netflix changed the page (Nov 2026): the old "set-primary-location-action" button
+    // was replaced by "update-household-confirm-cta". Support both.
+    const confirmButton = page.locator(
+      "button[data-uia='update-household-confirm-cta'], button[data-uia='set-primary-location-action']",
+    );
+    await confirmButton.first().click({ timeout: 30_000 });
 
-      const isSuccessLocator = page.locator('div[data-uia="upl-success"]');
-      await expect(isSuccessLocator).toBeAttached({ timeout: 1000 });
+    // Success: either the legacy success marker shows up, or the confirm button goes away.
+    await expect(async () => {
+      const legacySuccess = await page.locator('div[data-uia="upl-success"]').count();
+      const buttonsLeft = await confirmButton.count();
+      expect(legacySuccess > 0 || buttonsLeft === 0).toBe(true);
     }).toPass({
       intervals: [100, 250, 500, 1_000],
       timeout: 30_000,
